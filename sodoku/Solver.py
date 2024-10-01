@@ -7,7 +7,7 @@ class Sudoku:
         for i in range(9):
             if self.board[row][i] == num:
                 return False
-                
+
         # Check the column
         for i in range(9):
             if self.board[i][col] == num:
@@ -47,18 +47,22 @@ class Sudoku:
             print(" ".join(str(num) if num != 0 else "." for num in row))
 
 
-# Example Sudoku puzzle (0 represents empty cells)
-puzzle = [
-    [0, 0, 0, 0, 3, 0, 0, 2, 0],
-    [0, 6, 0, 0, 0, 1, 0, 0, 3],
-    [0, 0, 2, 0, 0, 0, 0, 4, 5],
-    [2, 0, 0, 3, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 3, 0, 0],
-    [0, 0, 0, 0, 0, 4, 0, 0, 9],
-    [3, 0, 0, 0, 0, 0, 4, 0, 0],
-    [5, 0, 0, 1, 0, 0, 0, 0, 2],
-    [0, 1, 0, 0, 0, 0, 0, 0, 0]
-]
+def get_input_board():
+    board = []
+    print("Enter the Sudoku board (use 0 for empty cells), one row at a time:")
+    for i in range(9):
+        while True:
+            row = input(f"Row {i + 1}: ")
+            if len(row) == 9 and all(c in '0123456789' for c in row):
+                board.append([int(c) for c in row])
+                break
+            else:
+                print("Invalid input. Please enter exactly 9 digits (0-9).")
+    return board
+
+
+# Get the Sudoku puzzle from user input
+puzzle = get_input_board()
 
 # Create a Sudoku instance and solve the puzzle
 sudoku = Sudoku(puzzle)
