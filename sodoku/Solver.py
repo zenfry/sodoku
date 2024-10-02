@@ -1,16 +1,20 @@
 class Sudoku:
     def __init__(self, board):
-        self.board = board
+        if isinstance(board, str):
+            self.board = self.from_string(board)
+        else:
+            self.board = board
+
+    @staticmethod
+    def from_string(board_str):
+        """Converts a string representation of a board into a list of lists."""
+        return [[int(c) for c in board_str[i:i+9]] for i in range(0, 81, 9)]
 
     def is_valid(self, row, col, num):
-        # Check the row
+        """Check if a number is valid in the current row, column, and 3x3 subgrid."""
+        # Check the row and column in one loop to reduce redundant iterations
         for i in range(9):
-            if self.board[row][i] == num:
-                return False
-
-        # Check the column
-        for i in range(9):
-            if self.board[i][col] == num:
+            if self.board[row][i] == num or self.board[i][col] == num:
                 return False
 
         # Check the 3x3 grid
@@ -23,52 +27,59 @@ class Sudoku:
         return True
 
     def solve(self):
-        # Find an empty cell
+        """Solve the Sudoku puzzle using backtracking."""
+        # Find an empty cell (represented by 0)
         for row in range(9):
             for col in range(9):
                 if self.board[row][col] == 0:
-                    # Try numbers from 1 to 9
+                    # Try numbers 1 to 9
                     for num in range(1, 10):
                         if self.is_valid(row, col, num):
                             self.board[row][col] = num
                             
-                            # Recur to check if this leads to a solution
                             if self.solve():
                                 return True
                             
-                            # If not, reset the cell and try another number
-                            self.board[row][col] = 0
-                    
-                    return False  # Trigger backtracking if no number fits
-        return True  # Puzzle solved!
+                            self.board[row][col] = 0  # Backtrack
+                    return False
+        return True
 
-    def print_board(self):
-        for row in self.board:
-            print(" ".join(str(num) if num != 0 else "." for num in row))
+    def __str__(self):
+        """Returns a formatted string representation of the Sudoku board."""
+        lines = []
+        for i, row in enumerate(self.board):
+            line = " ".join(str(num) if num != 0 else "." for num in row)
+            lines.append(line)
+            if i % 3 == 2 and i != 8:
+                lines.append("-" * 21)  # Add grid lines for readability
+        return "\n".join(lines)
 
 
-def get_input_board():
+def prompt_user_input():
+    """Prompts the user to input the Sudoku board row by row."""
     board = []
     print("Enter the Sudoku board (use 0 for empty cells), one row at a time:")
     for i in range(9):
         while True:
             row = input(f"Row {i + 1}: ")
-            if len(row) == 9 and all(c in '0123456789' for c in row):
-                board.append([int(c) for c in row])
+            # Validate row length and content
+            if len(row) == 9 and all(c.isdigit() for c in row):
+                board.append(row)
                 break
             else:
                 print("Invalid input. Please enter exactly 9 digits (0-9).")
-    return board
+    return ''.join(board)
 
 
 # Get the Sudoku puzzle from user input
-puzzle = get_input_board()
+puzzle_str = prompt_user_input()
 
 # Create a Sudoku instance and solve the puzzle
-sudoku = Sudoku(puzzle)
+sudoku = Sudoku(puzzle_str)
 
+# Solve and display the result
 if sudoku.solve():
     print("Solved Sudoku:")
-    sudoku.print_board()
+    print(sudoku)
 else:
     print("No solution exists!")
